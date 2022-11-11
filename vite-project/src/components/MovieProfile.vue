@@ -37,7 +37,7 @@
 </template>
 
 <script type="text/javascript">
-import { ref } from 'Vue'
+import { ref } from 'vue'
 import { defineComponent, VueElement } from 'vue';
 import axios from 'axios';
 
