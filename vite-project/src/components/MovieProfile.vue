@@ -1,0 +1,389 @@
+<template>
+    <div id="movieImage" ref="movieImage">
+    </div>
+    <div id="movieProfile">
+        <img id="poster" src="" ref="poster">
+        <h1 id="title" ref="title"></h1>
+        <h3 id="tagline" ref="tagline"></h3>
+        <h3 id="status" ref="status"></h3>
+        <p id="popularity" ref="popularity"></p>
+        <p id="voteAverage" ref="voteAverage"></p>
+        <p id="voteCount" ref="voteCount"></p>
+        <p id="budget" ref="budget"></p>
+        <p id="overview" ref="overview"></p>
+
+    </div>
+    <iframe id="trailer" ref="trailer"></iframe>
+
+    <select name="listOfMovies" id="dropdownMenu" ref="dropdownMenu">
+        <option value="245891">John Wick</option>
+        <option value="524251">I See You</option>
+        <option value="40662">Batman: Under the Red Hood</option>
+        <option value="146233">Prisoners</option>
+        <option value="515001">Jojo Rabbit</option>
+        <option value="183011">Justice League: The Flashpoint Paradox</option>
+        <option value="11423">살인의 추억</option>
+        <option value="13002">Barbie in the 12 Dancing Princesses</option>
+        <option value="155">The Dark Knight</option>
+        <option value="73456">Barbie: Princess Charm School</option>
+    </select>
+
+    <button id="getButton" @click="getMovieData()">Get</button>
+
+    <button id="searchButton" @click="search()">Search</button>
+
+    <input type="text" id="searchBar" ref="searchBar">
+
+</template>
+
+<script type="text/javascript">
+import { ref } from 'Vue'
+import { defineComponent, VueElement } from 'vue';
+import axios from 'axios';
+
+export default {
+    el: '#app',
+    data() {
+        return {
+            show: true
+        }
+    },
+    methods: {
+        getMovieData: function () {
+            let movieID = parseInt(this.$refs.dropdownMenu.value);
+
+            let search = axios.get("https://api.themoviedb.org/3/movie/" + movieID, {
+                params: {
+                    api_key: "e06cb446302dcf3a3cb1358720141aad",
+                    append_to_response: "videos",
+                }
+            })
+
+            let searchResult = search.then((movieData) => {
+                this.$refs.movieImage.style.backgroundImage = `url(https://image.tmdb.org/t/p/w500/${movieData.data.backdrop_path})`;
+                this.$refs.poster.src = "https://image.tmdb.org/t/p/w500" + movieData.data.poster_path;
+
+                this.$refs.title.innerHTML = movieData.data.original_title;
+                this.$refs.tagline.innerHTML = movieData.data.tagline;
+                this.$refs.status.innerHTML = `${movieData.data.status} ~ ${movieData.data.release_date}`;
+                this.$refs.popularity.innerHTML = `Popularity: ${movieData.data.popularity}`;
+                this.$refs.voteAverage.innerHTML = `Vote Average: ${movieData.data.vote_average}`;
+                this.$refs.voteCount.innerHTML = `Vote Count: ${movieData.data.vote_count}`;
+                this.$refs.budget.innerHTML = `Budget: $${movieData.data.budget}`;
+                this.$refs.overview.innerHTML = movieData.data.overview;
+                this.$refs.trailer.src = "https://www.youtube.com/embed/" + (movieData.data.videos.results.filter((trailer) => trailer.type === "Trailer")).at(0).key;
+            })
+        },
+
+        search: function () {
+            let apiKey = "e06cb446302dcf3a3cb1358720141aad";
+
+            let searchParam = this.$refs.searchBar.value;
+
+            let _searchParam = axios.get(`https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&language=en-US&page=1&include_adult=false&query=${searchParam}`, {
+
+            })
+
+            let _searchParamResult = _searchParam.then((finalResult) => {
+                //console.log(finalResult.data.results[0]);
+
+                document.getElementById("dropdownMenu").innerText = null;
+
+                for (let count = 0; count <= finalResult.data.results.length; count++) {
+                    let newOption = document.createElement("option");
+                    newOption.setAttribute('value', finalResult.data.results[count].id);
+                    newOption.innerHTML = finalResult.data.results[count].original_title;
+
+                    console.log(newOption.innerHTML);
+
+                    this.$refs.dropdownMenu.options.add(newOption);
+                }
+            })
+        }
+    }
+}
+
+
+</script>
+
+<style scoped>
+body {
+    background-color: black;
+}
+
+#dropdownMenu {
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: normal;
+
+    color: white;
+    background-color: rgb(22, 22, 22);
+
+    outline: rgb(22, 22, 22);
+
+    width: 400px;
+    height: 24px;
+
+    border-style: solid;
+    border-radius: 100px;
+
+    margin-left: 5px;
+
+    margin-top: 20px;
+    margin-bottom: 15px;
+
+    padding-left: 5px;
+
+}
+
+#searchBar {
+    position: absolute;
+
+    font-family: 'Courier New', Courier, monospace;
+    color: white;
+    font-size: medium;
+
+    background-color: rgb(22, 22, 22);
+
+    outline: rgb(22, 22, 22);
+
+    top: 717px;
+    left: 450px;
+
+    height: 17px;
+    width: 350px;
+
+    border-radius: 25px;
+
+    padding-left: 10px;
+}
+
+#searchButton {
+    font-family: 'Courier New', Courier, monospace;
+    color: white;
+    font-size: medium;
+
+    background-color: rgb(7, 7, 7);
+
+    position: absolute;
+
+    top: 717px;
+    left: 785px;
+
+    height: 24px;
+
+    border-style: solid;
+    border-width: 0px;
+    border-radius: 50px;
+
+    padding-top: 2px;
+    padding-right: 15px;
+    padding-bottom: 2px;
+    padding-left: 15px;
+
+    z-index: 99;
+}
+
+#getButton {
+    font-family: 'Courier New', Courier, monospace;
+    color: white;
+    font-size: medium;
+
+    background-color: rgb(7, 7, 7);
+
+    position: absolute;
+
+    top: 718px;
+    left: 365px;
+
+    height: 24px;
+
+    border-style: solid;
+    border-width: 0px;
+    border-radius: 50px;
+
+    padding-top: 2px;
+    padding-right: 15px;
+    padding-bottom: 2px;
+    padding-left: 15px;
+}
+
+#movieImage {
+    background-image: url(https://image.tmdb.org/t/p/w500/ff2ti5DkA9UYLzyqhQfI2kZqEuh.jpg) no-repeat center;
+    background-size: cover;
+
+    background-color: grey;
+    background-blend-mode: multiply;
+
+    filter: blur(10px);
+    filter: brightness(25%);
+    z-index: -1;
+
+    border-radius: 10px;
+
+    width: 97vw;
+    height: 690px;
+
+    margin-left: 5px;
+}
+
+#movieProfile #poster {
+    position: absolute;
+
+    top: 10px;
+
+    padding-top: 25px;
+    padding-right: 25px;
+    padding-bottom: 25px;
+    padding-left: 30px;
+
+    width: 200px;
+    height: 300px;
+
+    border-radius: 35px;
+
+    display: inline;
+}
+
+#movieProfile #title {
+    position: absolute;
+
+    font-family: 'Courier New', Courier, monospace;
+    color: white;
+
+    top: 10px;
+    left: 240px;
+
+    padding-top: 10px;
+    padding-right: 25px;
+    padding-bottom: 25px;
+    padding-left: 25px;
+}
+
+#movieProfile #tagline {
+    position: absolute;
+
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: lighter;
+    font-style: italic;
+    color: white;
+
+    top: 65px;
+    left: 240px;
+
+    padding-top: 0px;
+    padding-right: 25px;
+    padding-bottom: 25px;
+    padding-left: 25px;
+}
+
+#movieProfile #status {
+    position: absolute;
+
+    font-family: 'Courier New', Courier, monospace;
+    color: white;
+
+    top: 115px;
+    left: 240px;
+
+    padding-top: 0px;
+    padding-right: 25px;
+    padding-bottom: 25px;
+    padding-left: 25px;
+
+}
+
+#movieProfile #popularity {
+    position: absolute;
+
+    font-family: 'Courier New', Courier, monospace;
+    color: white;
+
+    top: 165px;
+    left: 240px;
+
+    padding-top: 0px;
+    padding-right: 25px;
+    padding-bottom: 25px;
+    padding-left: 25px;
+}
+
+#movieProfile #voteAverage {
+    position: absolute;
+
+    font-family: 'Courier New', Courier, monospace;
+    color: white;
+
+    top: 185px;
+    left: 240px;
+
+    padding-top: 0px;
+    padding-right: 25px;
+    padding-bottom: 25px;
+    padding-left: 25px;
+}
+
+#movieProfile #voteCount {
+    position: absolute;
+
+    font-family: 'Courier New', Courier, monospace;
+    color: white;
+
+    top: 205px;
+    left: 240px;
+
+    padding-top: 0px;
+    padding-right: 25px;
+    padding-bottom: 25px;
+    padding-left: 25px;
+}
+
+#movieProfile #budget {
+    position: absolute;
+
+    font-family: 'Courier New', Courier, monospace;
+    color: white;
+
+    top: 245px;
+    left: 240px;
+
+    padding-top: 0px;
+    padding-right: 25px;
+    padding-bottom: 25px;
+    padding-left: 25px;
+}
+
+#movieProfile #overview {
+    position: absolute;
+
+    font-family: 'Courier New', Courier, monospace;
+    line-height: 145%;
+    color: white;
+
+    top: 345px;
+    left: 15px;
+
+    width: 665px;
+
+    padding-top: 0px;
+    padding-right: 25px;
+    padding-bottom: 25px;
+    padding-left: 25px;
+}
+
+#trailer {
+    position: absolute;
+
+    margin-top: 25px;
+    margin-right: 10px;
+
+    right: 30px;
+    top: 340px;
+
+    aspect-ratio: 16/9;
+
+    height: 300px;
+    width: 450px;
+
+    border-radius: 10px;
+}
+</style>
