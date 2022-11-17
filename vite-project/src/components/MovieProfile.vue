@@ -15,7 +15,7 @@
     </div>
     <iframe id="trailer" ref="trailer"></iframe>
 
-    <select name="listOfMovies" id="dropdownMenu" ref="dropdownMenu">
+    <select v-model="dropdownMenu" name="listOfMovies" id="dropdownMenu" @change="">
         <option value="245891">John Wick</option>
         <option value="524251">I See You</option>
         <option value="40662">Batman: Under the Red Hood</option>
@@ -36,73 +36,74 @@
 
 </template>
 
-<script type="text/javascript">
-import { ref } from 'Vue'
+<script setup>
+import { ref } from 'vue';
+import { reactive } from 'vue'
 import { defineComponent, VueElement } from 'vue';
 import axios from 'axios';
 
-export default {
-    el: '#app',
-    data() {
-        return {
-            show: true
+const dropdownMenu = ref();
+const searchBar = ref(null);
+
+const movieImage = ref(null);
+const poster = ref(null);
+const title = ref(null);
+const tagline = ref(null);
+const status = ref(null);
+const popularity = ref(null);
+const voteAverage = ref(null);
+const voteCount = ref(null);
+const budget = ref(null);
+const overview = ref(null);
+const trailer = ref(null);
+
+function getMovieData() {
+    let search = axios.get(`https://api.themoviedb.org/3/movie/${dropdownMenu.value}`, {
+        params: {
+            api_key: "e06cb446302dcf3a3cb1358720141aad",
+            append_to_response: "videos",
         }
-    },
-    methods: {
-        getMovieData: function () {
-            let movieID = parseInt(this.$refs.dropdownMenu.value);
+    })
 
-            let search = axios.get("https://api.themoviedb.org/3/movie/" + movieID, {
-                params: {
-                    api_key: "e06cb446302dcf3a3cb1358720141aad",
-                    append_to_response: "videos",
-                }
-            })
-
-            let searchResult = search.then((movieData) => {
-                this.$refs.movieImage.style.backgroundImage = `url(https://image.tmdb.org/t/p/w500/${movieData.data.backdrop_path})`;
-                this.$refs.poster.src = "https://image.tmdb.org/t/p/w500" + movieData.data.poster_path;
-
-                this.$refs.title.innerHTML = movieData.data.original_title;
-                this.$refs.tagline.innerHTML = movieData.data.tagline;
-                this.$refs.status.innerHTML = `${movieData.data.status} ~ ${movieData.data.release_date}`;
-                this.$refs.popularity.innerHTML = `Popularity: ${movieData.data.popularity}`;
-                this.$refs.voteAverage.innerHTML = `Vote Average: ${movieData.data.vote_average}`;
-                this.$refs.voteCount.innerHTML = `Vote Count: ${movieData.data.vote_count}`;
-                this.$refs.budget.innerHTML = `Budget: $${movieData.data.budget}`;
-                this.$refs.overview.innerHTML = movieData.data.overview;
-                this.$refs.trailer.src = "https://www.youtube.com/embed/" + (movieData.data.videos.results.filter((trailer) => trailer.type === "Trailer")).at(0).key;
-            })
-        },
-
-        search: function () {
-            let apiKey = "e06cb446302dcf3a3cb1358720141aad";
-
-            let searchParam = this.$refs.searchBar.value;
-
-            let _searchParam = axios.get(`https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&language=en-US&page=1&include_adult=false&query=${searchParam}`, {
-
-            })
-
-            let _searchParamResult = _searchParam.then((finalResult) => {
-                //console.log(finalResult.data.results[0]);
-
-                document.getElementById("dropdownMenu").innerText = null;
-
-                for (let count = 0; count <= finalResult.data.results.length; count++) {
-                    let newOption = document.createElement("option");
-                    newOption.setAttribute('value', finalResult.data.results[count].id);
-                    newOption.innerHTML = finalResult.data.results[count].original_title;
-
-                    console.log(newOption.innerHTML);
-
-                    this.$refs.dropdownMenu.options.add(newOption);
-                }
-            })
-        }
-    }
+    let searchResult = search.then((movieData) => {
+        movieImage.value.style.backgroundImage = `url(https://image.tmdb.org/t/p/w500/${movieData.data.backdrop_path})`;
+        poster.value.src = "https://image.tmdb.org/t/p/w500" + movieData.data.poster_path;
+        title.value.innerHTML = movieData.data.original_title;
+        tagline.value.innerHTML = movieData.data.tagline;
+        status.value.innerHTML = `${movieData.data.status} ~ ${movieData.data.release_date}`;
+        popularity.value.innerHTML = `Popularity: ${movieData.data.popularity}`;
+        voteAverage.value.innerHTML = `Vote Average: ${movieData.data.vote_average}`;
+        voteCount.value.innerHTML = `Vote Count: ${movieData.data.vote_count}`;
+        budget.value.innerHTML = `Budget: $${movieData.data.budget}`;
+        overview.value.innerHTML = movieData.data.overview;
+        trailer.value.src = "https://www.youtube.com/embed/" + (movieData.data.videos.results.filter((trailer) => trailer.type === "Trailer")).at(0).key;
+    })
 }
 
+function search() {
+    let apiKey = "e06cb446302dcf3a3cb1358720141aad";
+
+    let searchParam = searchBar.value.value;
+
+    let _searchParam = axios.get(`https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&language=en-US&page=1&include_adult=false&query=${searchParam}`, {
+
+    })
+
+    let _searchParamResult = _searchParam.then((finalResult) => {
+        
+        document.getElementById("dropdownMenu").innerText = null;
+ 
+        for (let count = 0; count <= finalResult.data.results.length; count++) {
+            let newOption = document.createElement("option");
+            newOption.setAttribute('value', finalResult.data.results[count].id);
+            newOption.innerHTML = finalResult.data.results[count].original_title;
+ 
+            document.getElementById("dropdownMenu").options.add(newOption);
+        }
+    })
+
+
+}
 
 </script>
 
