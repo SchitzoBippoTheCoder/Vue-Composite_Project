@@ -90,7 +90,7 @@ function search() {
     })
 
     let _searchParamResult = _searchParam.then((finalResult) => {
-        
+
         document.getElementById("dropdownMenu").innerText = null;
  
         for (let count = 0; count <= finalResult.data.results.length; count++) {
