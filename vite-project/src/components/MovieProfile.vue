@@ -36,9 +36,8 @@
 
 </template>
 
-<script setup>
-import { ref } from 'vue';
-import { reactive } from 'vue'
+<script type="text/javascript">
+import { ref } from 'Vue'
 import { defineComponent, VueElement } from 'vue';
 import axios from 'axios';
 
