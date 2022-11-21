@@ -29,7 +29,6 @@
 
 <script setup>
 import { ref } from 'vue';
-import { reactive } from 'vue';
 import axios from 'axios';
 
 const dropdownMenu = ref();
@@ -95,7 +94,7 @@ function search() {
     let _searchParamResult = _searchParam.then((finalResult) => {
 
         options.value = [];
-        
+
         for (let count = 0; count < finalResult.data.results.length; count++) {
             options.value.push(
                 {text: finalResult.data.results[count].original_title, value: finalResult.data.results[count].id}
