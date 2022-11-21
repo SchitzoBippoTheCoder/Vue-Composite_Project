@@ -2,30 +2,21 @@
     <div id="movieImage" ref="movieImage">
     </div>
     <div id="movieProfile">
-        <img id="poster" src="" ref="poster">
-        <h1 id="title" ref="title"></h1>
-        <h3 id="tagline" ref="tagline"></h3>
-        <h3 id="status" ref="status"></h3>
-        <p id="popularity" ref="popularity"></p>
-        <p id="voteAverage" ref="voteAverage"></p>
-        <p id="voteCount" ref="voteCount"></p>
-        <p id="budget" ref="budget"></p>
-        <p id="overview" ref="overview"></p>
+        <img id="poster" :src="poster">
+        <h1 id="title"> {{ title }}</h1>
+        <h3 id="tagline">{{ tagline }}</h3>
+        <h3 id="status">{{ status }}</h3>
+        <p id="popularity">{{ popularity }}</p>
+        <p id="voteAverage">{{ voteAverage }}</p>
+        <p id="voteCount">{{ voteCount }}</p>
+        <p id="budget">{{ budget }}</p>
+        <p id="overview">{{ overview }}</p>
 
     </div>
-    <iframe id="trailer" ref="trailer"></iframe>
+    <iframe id="trailer" :src="trailer"></iframe>
 
     <select v-model="dropdownMenu" name="listOfMovies" id="dropdownMenu" @change="">
-        <option value="245891">John Wick</option>
-        <option value="524251">I See You</option>
-        <option value="40662">Batman: Under the Red Hood</option>
-        <option value="146233">Prisoners</option>
-        <option value="515001">Jojo Rabbit</option>
-        <option value="183011">Justice League: The Flashpoint Paradox</option>
-        <option value="11423">살인의 추억</option>
-        <option value="13002">Barbie in the 12 Dancing Princesses</option>
-        <option value="155">The Dark Knight</option>
-        <option value="73456">Barbie: Princess Charm School</option>
+        <option v-for="option in options" :value=option.value>{{ option.text }}</option>
     </select>
 
     <button id="getButton" @click="getMovieData()">Get</button>
@@ -36,10 +27,9 @@
 
 </template>
 
-<script type="text/javascript">
+<script setup>
 import { ref } from 'vue';
-import { reactive } from 'vue'
-import { defineComponent, VueElement } from 'vue';
+import { reactive } from 'vue';
 import axios from 'axios';
 
 const dropdownMenu = ref();
@@ -57,6 +47,19 @@ const budget = ref(null);
 const overview = ref(null);
 const trailer = ref(null);
 
+let options = ref([
+    {text: "John Wick", value: "245891"},
+    {text: "I See You", value: "524251"},
+    {text: "Batman: Under the Red Hood", value: "40662"},
+    {text: "Prisoners", value: "146233"},
+    {text: "Jojo Rabbit", value: "515001"},
+    {text: "Justice League: The Flashpoint Paradox", value: "183011"},
+    {text: "살인의 추억", value: "11423"},
+    {text: "Barbie in the 12 Dancing Princesses", value: "13002"},
+    {text: "The Dark Knight", value: "155"},
+    {text: "Barbie: Princess Charm School", value: "73456"},
+]);
+
 function getMovieData() {
     let search = axios.get(`https://api.themoviedb.org/3/movie/${dropdownMenu.value}`, {
         params: {
@@ -67,16 +70,16 @@ function getMovieData() {
 
     let searchResult = search.then((movieData) => {
         movieImage.value.style.backgroundImage = `url(https://image.tmdb.org/t/p/w500/${movieData.data.backdrop_path})`;
-        poster.value.src = "https://image.tmdb.org/t/p/w500" + movieData.data.poster_path;
-        title.value.innerHTML = movieData.data.original_title;
-        tagline.value.innerHTML = movieData.data.tagline;
-        status.value.innerHTML = `${movieData.data.status} ~ ${movieData.data.release_date}`;
-        popularity.value.innerHTML = `Popularity: ${movieData.data.popularity}`;
-        voteAverage.value.innerHTML = `Vote Average: ${movieData.data.vote_average}`;
-        voteCount.value.innerHTML = `Vote Count: ${movieData.data.vote_count}`;
-        budget.value.innerHTML = `Budget: $${movieData.data.budget}`;
-        overview.value.innerHTML = movieData.data.overview;
-        trailer.value.src = "https://www.youtube.com/embed/" + (movieData.data.videos.results.filter((trailer) => trailer.type === "Trailer")).at(0).key;
+        poster.value = "https://image.tmdb.org/t/p/w500" + movieData.data.poster_path;
+        title.value = movieData.data.original_title;
+        tagline.value = movieData.data.tagline;
+        status.value = `${movieData.data.status} ~ ${movieData.data.release_date}`;
+        popularity.value = `Popularity: ${movieData.data.popularity}`;
+        voteAverage.value = `Vote Average: ${movieData.data.vote_average}`;
+        voteCount.value = `Vote Count: ${movieData.data.vote_count}`;
+        budget.value = `Budget: $${movieData.data.budget}`;
+        overview.value = movieData.data.overview;
+        trailer.value = "https://www.youtube.com/embed/" + (movieData.data.videos.results.filter((trailer) => trailer.type === "Trailer")).at(0).key;
     })
 }
 
@@ -91,14 +94,12 @@ function search() {
 
     let _searchParamResult = _searchParam.then((finalResult) => {
 
-        document.getElementById("dropdownMenu").innerText = null;
- 
-        for (let count = 0; count <= finalResult.data.results.length; count++) {
-            let newOption = document.createElement("option");
-            newOption.setAttribute('value', finalResult.data.results[count].id);
-            newOption.innerHTML = finalResult.data.results[count].original_title;
- 
-            document.getElementById("dropdownMenu").options.add(newOption);
+        options.value = [];
+        
+        for (let count = 0; count < finalResult.data.results.length; count++) {
+            options.value.push(
+                {text: finalResult.data.results[count].original_title, value: finalResult.data.results[count].id}
+            )
         }
     })
 
