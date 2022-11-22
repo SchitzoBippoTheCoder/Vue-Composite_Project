@@ -23,7 +23,7 @@
 
     <button id="searchButton" @click="search()">Search</button>
 
-    <input type="text" id="searchBar" ref="searchBar">
+    <input type="search" id="searchBar" ref="searchBar">
 
 </template>
 
